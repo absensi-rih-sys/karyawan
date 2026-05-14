@@ -123,6 +123,53 @@ const jurnal = {
         }
     },
 
+    // Tambahkan/Ganti fungsi handlePhoto juga agar proses Base64 berjalan
+    handlePhoto(file) {
+        if (!file) return;
+
+        // Validasi tipe file
+        if (!file.type.startsWith('image/')) {
+            toast.show('Hanya file gambar yang diperbolehkan', 'error');
+            return;
+        }
+
+        // Validasi ukuran (contoh: max 2MB agar tidak terlalu berat saat kirim ke GAS)
+        if (file.size > 2 * 1024 * 1024) {
+            toast.show('Ukuran gambar terlalu besar (Maks 2MB)', 'error');
+            return;
+        }
+
+        const reader = new FileReader();
+        reader.onload = (e) => {
+            // PROSES UTAMA: Mengubah file ke string Base64
+            this.currentPhoto = e.target.result;
+
+            // Tampilkan preview ke UI
+            const imagePreview = document.getElementById('jurnal-image-preview');
+            const filePreview = document.getElementById('jurnal-file-preview');
+            const uploadArea = document.getElementById('jurnal-upload-area');
+
+            if (imagePreview) imagePreview.src = e.target.result;
+            if (filePreview) filePreview.style.display = 'block';
+            if (uploadArea) uploadArea.style.display = 'none';
+        };
+        reader.readAsDataURL(file);
+    },
+
+    removePhoto() {
+        this.currentPhoto = null;
+        
+        const fileInput = document.getElementById('jurnal-photo');
+        const filePreview = document.getElementById('jurnal-file-preview');
+        const uploadArea = document.getElementById('jurnal-upload-area');
+        const imagePreview = document.getElementById('jurnal-image-preview');
+
+        if (fileInput) fileInput.value = '';
+        if (filePreview) filePreview.style.display = 'none';
+        if (uploadArea) uploadArea.style.display = 'flex';
+        if (imagePreview) imagePreview.src = '';
+    },
+
     handlePhoto(file) {
         const maxSize = 5 * 1024 * 1024; // 5MB
         const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png'];
